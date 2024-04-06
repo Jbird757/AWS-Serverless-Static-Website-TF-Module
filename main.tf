@@ -6,12 +6,12 @@ resource "aws_s3_bucket" "site_build" {
   tags = var.common_tags
 }
 
-resource "aws_s3_bucket_policy" "allow_access_from_cloudfront" {
+resource "aws_s3_bucket_policy" "allow_access_from_cloudfront" { #Bucket Policy Object, which contains an IAM policy (below)
   bucket = aws_s3_bucket.site_build.id
   policy = data.aws_iam_policy_document.allow_access_from_cloudfront.json
 }
 
-data "aws_iam_policy_document" "allow_access_from_cloudfront" {
+data "aws_iam_policy_document" "allow_access_from_cloudfront" { #IAM Policy Object to populate the S3 Bucket Policy
   depends_on = [aws_cloudfront_distribution.s3_distribution]
 
   statement {
