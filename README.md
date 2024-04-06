@@ -53,7 +53,10 @@ Once you understand what Terraform will do, run `terraform apply`. This will fir
 
 Once the apply is complete, you can run this command `aws s3 cp {file_name} s3://{Bucket Name}/` to upload your index.html file or run it specifying the directory which holds your static code with the `--recusive` flag for multiple files and subdirectories.
 
-After this is complete, you can go to the CloudFront distribution in your browser and you should see the contents of your static site. 
+After this is complete, you can go to the url of the CloudFront distribution in your browser and you should see the contents of your static site. 
 
 ### Your DNS
 
+Assuming that you have your own domain that you entered into the variables section, the ACM certificate is correctly configured. However, you cannot access your site from the domain yet because DNS is still not set up. You will need to go to your domain registrar or provider's website and set up several DNS records. You can find the values for these records in the AWS Console in your ACM certificate that was just created. For each domain and alternate domain you will need to create an ALIAS record that points to the CloudFront distribution as well as a CNAME record that points to the ACM certificate for DNS validation. Once these have been set up and the DNS cache has been refreshed, you should be able to go to your domain and see your static website. 
+
+Alternatively, there is a way to configure Terraform to output the values of the DNS validation that the ACM certificate will need you to set up with your DNS registrar so that you don't need to access the AWS Console at all. It will involve setting up outputs in both the module and the main terraform directory. Read the [Terraform AWS Provider Docs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) for ACM to learn more.
