@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "allow_access_from_cloudfront" { #IAM Policy Obje
 #------------------------------------------------ CloudFront Distribution ------------------------------------------------#
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-  depends_on = [aws_s3_bucket.site_build, aws_acm_certificate.site_tls_cert]
+  depends_on = [aws_s3_bucket.site_build]
 
   origin {
     domain_name              = aws_s3_bucket.site_build.bucket_regional_domain_name
@@ -88,13 +88,14 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   tags = var.common_tags
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate.site_tls_cert.arn
-    ssl_support_method = "sni-only"
+    acm_certificate_arn = var.site_domain_name != null ? aws_acm_certificate.site_tls_cert[0].arn : null
+    cloudfront_default_certificate = var.site_domain_name != null ? false : true
+    ssl_support_method  = var.site_domain_name != null ? "sni-only" : null
   }
 }
 
 resource "aws_cloudfront_origin_access_control" "s3_oac" { #CloudFront OAC
-  name                              = "s3_oac"
+  name                              = var.oac_name
   description                       = "OAC to connect s3_distribution with the S3 bucket site_build"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
@@ -104,6 +105,7 @@ resource "aws_cloudfront_origin_access_control" "s3_oac" { #CloudFront OAC
 #------------------------------------------------ ACM Certificate ------------------------------------------------#
 
 resource "aws_acm_certificate" "site_tls_cert" {
+  count = var.site_domain_name != null ? 1 : 0
   domain_name               = var.site_domain_name
   subject_alternative_names = var.alternate_domains
   validation_method         = "DNS"

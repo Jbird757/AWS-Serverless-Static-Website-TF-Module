@@ -1,7 +1,7 @@
 #--------------------------------------- Local Variables --------------------------------------------#
 
 locals {
-  all_domain_names = concat([var.site_domain_name], var.alternate_domains)
+  all_domain_names = var.site_domain_name != null ? concat([var.site_domain_name], var.alternate_domains) : null
 }
 
 #--------------------------------------- Inputs to the Module ---------------------------------------#
@@ -20,6 +20,7 @@ variable "common_tags" {
 variable "site_domain_name" {
   type        = string
   description = "Domain name of website"
+  default = null
 }
 
 variable "alternate_domains" {
@@ -27,6 +28,13 @@ variable "alternate_domains" {
   description = "Alternate domains to add to the ACM certificate"
   default     = []
 }
+
+variable "oac_name" {
+  type = string
+  description = "Name of OAC to connect CloudFront and the S3 Bucket"
+  default = "s3_static_site_oac"
+}
+
 
 #----------------------------------- Outputs from the Module ---------------------------------------#
 
