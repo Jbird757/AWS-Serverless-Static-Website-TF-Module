@@ -39,13 +39,15 @@ terraform {
 ```
 
 This block sets the version of Terraform and the AWS provider.
-Now, in the console in the `terraform/` directory you can run `terraform init` to initialize a terraform project. This will set up a backend in this directory that will keep track of changes made. You can also configure the backend to be in an [S3 bucket](https://developer.hashicorp.com/terraform/language/settings/backends/configuration), and for a website hosted on AWS that is probably the better choice. 
+Now, in the console in the `terraform/` directory you can run `terraform init` to initialize a terraform project. For the purposes of this module, all Terraform commands should be run in the `terraform` directory. This will set up a backend in this directory that will keep track of changes made. You can also configure the backend to be in an [S3 bucket](https://developer.hashicorp.com/terraform/language/settings/backends/configuration), and for a website hosted on AWS that is probably the better choice. 
 
 ## Your Terraform
-Look at the `io.tf` file and view the variables and outputs. The variables are all inputs to the module. Some are required (those without a `default` attribute). You will need to define these values in your `terraform.tfvars` file and pass them into the module in your `terraform/main.tf`. 
-Starting in the `terraform.tfvars` folder, define all the local variables (called locals) you want to pass in. See prerequisites for questions about the domain name. [Here](https://developer.hashicorp.com/terraform/language/values/variables) is documentation on making locals. Terraform documentation is quite good. You will also need to create some outputs that take the output from the module and output it to the console if you want to see the S3 Bucket name and cloudfront distribution domain without needing to log into the AWS console (mostly applicable only if you don't have a domain that you're passing in). 
+Look at the `io.tf` file and view the variables and outputs. The variables are all inputs to the module. Some are required (those without a `default` attribute). You will need to define these values in your `terraform.tfvars` file and reference them in your `terraform/main.tf` to pass them into the module. 
+Starting in the `terraform.tfvars` file, define and set values for all the local variables (called locals) you want to pass in. See prerequisites for questions about the domain name. [Here](https://developer.hashicorp.com/terraform/language/values/variables) is documentation on making locals. Terraform documentation is quite good.
 
-In the `main.tf` file in the `terraform` directory, reference the module with a module block and pass in the variables. Knowledge on how to do this can also be found in the Terraform Docs. For the source, use `source = "./modules/{your_descriptive_directory}`.
+You will also need to create some other variables, called outputs, that take the output from the module and output it to the console if you want to see the S3 Bucket name and cloudfront distribution domain without needing to log into the AWS console (mostly applicable only if you don't have a domain that you're passing in). 
+
+In the `main.tf` file in the `terraform` directory, reference the module with a module block and pass in the variables. Knowledge on how to do this can also be found in the Terraform Docs. For the source attribute of the module block, use `source = "./modules/{your_descriptive_directory}`.
 
 Now you can perform the next steps. First run `terraform init` again to initialize the new module. It is always a good idea to validate your code, so run `terraform fmt` and `terraform validate` in the terraform directory. If there are no errors, you can go to the next step, which is to run `terraform plan`. This outputs exactly what Terraform plans to do in your AWS account. 
 
@@ -53,7 +55,7 @@ Now is a good time to go over what is actually going on in the Terraform Module.
 
 Once you understand what Terraform will do, run `terraform apply`. This will first do an additional plan, and once you confirm the plan, it will create the resources in AWS.
 
-The apply will take several minutes. Usually it doesn't take this long, but creating a CloudFront Distribution is a slow process. Once it is complete, you can run this command `aws s3 cp {file_name} s3://{Bucket Name}/` to upload your index.html file or run it specifying the directory which holds your static code with the `--recusive` flag for multiple files and subdirectories.
+The apply will take several minutes. Usually it doesn't take this long, but creating a CloudFront Distribution is a slow process. Once it is complete, you can run this command from the directory that contains your index.html file `aws s3 cp {file_name} s3://{Bucket Name}/` to upload your index.html file or run it specifying the directory which holds your static code with the `--recursive` flag for multiple files and subdirectories.
 
 After this is complete, you can go to the url of the CloudFront distribution in your browser and you should see the contents of your static site. 
 
