@@ -20,8 +20,8 @@ You will need to have previously signed in with this user on the [AWS CLI](https
 ## To Begin
 
 Make a new directory (probably called "terraform") in your own website directory. Make a subdirectory in the terraform directory called "modules" and another subdirectory in modules called something descriptive and copy the .tf files to the newest descriptive directory.
-In the terraform directory, create 3 files, called `providers.tf`, `main.tf`, and `terraform.tfvars`.
-In the providers.tf file, copy and paste this code block:
+- In the terraform directory, create 3 files, called `providers.tf`, `main.tf`, and `terraform.tfvars`.
+- In the providers.tf file, copy and paste this code block:
 
 
 ```
