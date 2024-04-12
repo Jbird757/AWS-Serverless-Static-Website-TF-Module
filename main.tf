@@ -7,11 +7,13 @@ resource "aws_s3_bucket" "site_build" {
 }
 
 resource "aws_s3_bucket_policy" "allow_access_from_cloudfront" { #Bucket Policy Object, which contains an IAM policy (below)
+  count = var.tls_cert_validated == true ? 1 : 0
   bucket = aws_s3_bucket.site_build.id
-  policy = data.aws_iam_policy_document.allow_access_from_cloudfront.json
+  policy = data.aws_iam_policy_document.allow_access_from_cloudfront[0].json
 }
 
 data "aws_iam_policy_document" "allow_access_from_cloudfront" { #IAM Policy Object to populate the S3 Bucket Policy
+  count = var.tls_cert_validated == true ? 1 : 0
   depends_on = [aws_cloudfront_distribution.s3_distribution]
 
   statement {
@@ -29,7 +31,7 @@ data "aws_iam_policy_document" "allow_access_from_cloudfront" { #IAM Policy Obje
     condition {
       test = "StringEquals"
       variable = "AWS:SourceArn"
-      values = ["${aws_cloudfront_distribution.s3_distribution.arn}"]
+      values = ["${aws_cloudfront_distribution.s3_distribution[0].arn}"]
     }
   }
 }
@@ -37,11 +39,11 @@ data "aws_iam_policy_document" "allow_access_from_cloudfront" { #IAM Policy Obje
 #------------------------------------------------ CloudFront Distribution ------------------------------------------------#
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
-  depends_on = [aws_s3_bucket.site_build]
+  count = var.tls_cert_validated == true ? 1 : 0
 
   origin {
     domain_name              = aws_s3_bucket.site_build.bucket_regional_domain_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac[0].id
     origin_id                = aws_s3_bucket.site_build.bucket_regional_domain_name
   }
 
@@ -95,6 +97,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 }
 
 resource "aws_cloudfront_origin_access_control" "s3_oac" { #CloudFront OAC
+  count = var.tls_cert_validated == true ? 1 : 0
   name                              = var.oac_name
   description                       = "OAC to connect s3_distribution with the S3 bucket site_build"
   origin_access_control_origin_type = "s3"

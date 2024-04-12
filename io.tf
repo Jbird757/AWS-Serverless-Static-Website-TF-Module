@@ -35,6 +35,12 @@ variable "oac_name" {
   default = "s3_static_site_oac"
 }
 
+variable "tls_cert_validated" {
+  type = bool
+  description = "Set true if the ACM certificate has already been created an validated (this will create the CloudFront Distribution)"
+  default = false
+}
+
 
 #----------------------------------- Outputs from the Module ---------------------------------------#
 
@@ -43,5 +49,5 @@ output "bucket_name" {
 }
 
 output "distribution_name" {
-  value = aws_cloudfront_distribution.s3_distribution.domain_name
+  value = var.tls_cert_validated == true ? aws_cloudfront_distribution.s3_distribution[0].domain_name : "none created"
 }

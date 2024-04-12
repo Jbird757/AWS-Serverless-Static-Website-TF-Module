@@ -43,24 +43,33 @@ This block sets the version of Terraform and the AWS provider.
 Now, in the console in the `terraform/` directory you can run `terraform init` to initialize a terraform project. For the purposes of this module, all Terraform commands should be run in the `terraform` directory. This will set up a backend in this directory that will keep track of changes made. You can also configure the backend to be in an [S3 bucket](https://developer.hashicorp.com/terraform/language/settings/backends/configuration), and for a website hosted on AWS that is probably the better choice. 
 
 ## Your Terraform
-Look at the `io.tf` file and view the variables and outputs. The variables are all inputs to the module. Some are required (those without a `default` attribute). You will need to define these values in your `terraform.tfvars` file and reference them in your `terraform/main.tf` to pass them into the module. 
+Look at the `io.tf` file and view the variables and outputs. The variables are all inputs to the module. Some are required (those without a `default` attribute). You will need to define these values in your `terraform.tfvars` file and reference them in your `terraform/main.tf` to pass them into the module.
+
+Take note of the `tls_cert_validated` and `site_domain_name` variables. If you have a domain name, you will need to make 2 applies. The first will create the ACM certificate and the S3 bucket, and the second should be done after validating the ACM certificate ([see the DNS section](#dns)). Here are the ways to set these variables for the following scenarios:
+
+- No domain name used: `tls_cert_validated = true`, `site_domain_name = null` (deafult)
+- Have a domain name, the first time running: `tls_cert_validated = false` (deafult), `site_domain_name = {name of site}`
+- Have a domain name, the second time running: `tls_cert_validated = true`, `site_domain_name = {name of site}`
+
 Starting in the `terraform.tfvars` file, define and set values for all the local variables (called locals) you want to pass in. See prerequisites for questions about the domain name. [Here](https://developer.hashicorp.com/terraform/language/values/variables) is documentation on making locals. Terraform documentation is quite good.
 
 You will also need to create some other variables, called outputs, that take the output from the module and output it to the console if you want to see the S3 Bucket name and cloudfront distribution domain without needing to log into the AWS console (mostly applicable only if you don't have a domain that you're passing in). 
 
 In the `main.tf` file in the `terraform` directory, reference the module with a module block and pass in the variables. Knowledge on how to do this can also be found in the Terraform Docs. For the source attribute of the module block, use `source = "./modules/{your_descriptive_directory}`.
 
-Now you can perform the next steps. First run `terraform init` again to initialize the new module. It is always a good idea to validate your code, so run `terraform fmt` and `terraform validate` in the terraform directory. If there are no errors, you can go to the next step, which is to run `terraform plan`. This outputs exactly what Terraform plans to do in your AWS account. 
+Now you can perform the next steps. First run `terraform init` again to initialize the new module. It is always a good idea to validate your code, so run `terraform fmt` and `terraform validate` in the terraform directory. If there are no errors, you can go to the next step, which is to run `terraform plan`. This outputs exactly what Terraform plans to do in your AWS account.
 
 Now is a good time to go over what is actually going on in the Terraform Module. Take a look inside it and get familiar with the different resources which are defined in `resource` blocks in the `main.tf` file.
 
 Once you understand what Terraform will do, run `terraform apply`. This will first do an additional plan, and once you confirm the plan, it will create the resources in AWS.
 
+If you have your own domain name, you will need to run the apply twice, with different values of `tls_cert_validated`.
+
 The apply will take several minutes. Usually it doesn't take this long, but creating a CloudFront Distribution is a slow process. Once it is complete, you can run this command from the directory that contains your index.html file `aws s3 cp {file_name} s3://{Bucket Name}/` to upload your index.html file or run it specifying the directory which holds your static code with the `--recursive` flag for multiple files and subdirectories.
 
-After this is complete, you can go to the url of the CloudFront distribution in your browser and you should see the contents of your static site. 
+After this is complete, you can go to the url of the CloudFront distribution in your browser and you should see the contents of your static site.
 
-### Your DNS
+### Your DNS {#dns}
 
 Assuming that you have your own domain that you entered into the variables section, the ACM certificate is now correctly configured. However, you cannot access your site from the domain yet because DNS is still not set up. You will need to go to your domain registrar or provider's website and set up several DNS records. You can find the values for these records in the AWS Console in your ACM certificate that was just created. For each domain and alternate domain you specified in the Terraform you will need to create an ALIAS record that points to the CloudFront distribution as well as a CNAME record that points to the ACM certificate for DNS validation. Once these have been set up and the DNS cache has been refreshed, you should be able to go to your domain and see your static website. 
 
