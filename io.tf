@@ -37,7 +37,7 @@ variable "oac_name" {
 
 variable "tls_cert_validated" {
   type = bool
-  description = "Set true if the ACM certificate has already been created an validated (this will create the CloudFront Distribution)"
+  description = "Set true if the ACM certificate has already been created and validated (this will create the CloudFront Distribution)"
   default = false
 }
 
