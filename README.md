@@ -20,7 +20,7 @@ You will need to have previously signed in with this user on the [AWS CLI](https
 ## To Begin
 
 Make a new directory (probably called "terraform") in your own website directory. Make a subdirectory in the terraform directory called "modules" and another subdirectory in modules called something descriptive and copy the .tf files to the newest descriptive directory.
-- In the terraform directory, create 3 files, called `providers.tf`, `main.tf`, and `terraform.tfvars`.
+- In the terraform directory, create 3 files, called `providers.tf`, `main.tf`, and `variables.tf`.
 - In the providers.tf file, copy and paste this code block:
 
 
@@ -43,7 +43,7 @@ This block sets the version of Terraform and the AWS provider.
 Now, in the console in the `terraform/` directory you can run `terraform init` to initialize a terraform project. For the purposes of this module, all Terraform commands should be run in the `terraform` directory. This will set up a backend in this directory that will keep track of changes made. You can also configure the backend to be in an [S3 bucket](https://developer.hashicorp.com/terraform/language/settings/backends/configuration), and for a website hosted on AWS that is probably the better choice. 
 
 ## Your Terraform
-Look at the `io.tf` file and view the variables and outputs. The variables are all inputs to the module. Some are required (those without a `default` attribute). You will need to define these values in your `terraform.tfvars` file and reference them in your `terraform/main.tf` to pass them into the module.
+Look at the `io.tf` file and view the variables and outputs. The variables are all inputs to the module. Some are required (those without a `default` attribute). You will need to define these values in your `variables.tf` file and reference them in your `terraform/main.tf` to pass them into the module.
 
 Take note of the `tls_cert_validated` and `site_domain_name` variables. If you have a domain name, you will need to make 2 applies. The first will create the ACM certificate and the S3 bucket, and the second should be done after validating the ACM certificate ([see the DNS section](#dns)). Here are the ways to set these variables for the following scenarios:
 
@@ -51,7 +51,7 @@ Take note of the `tls_cert_validated` and `site_domain_name` variables. If you h
 - Have a domain name, the first time running: `tls_cert_validated = false` (deafult), `site_domain_name = {name of site}`
 - Have a domain name, the second time running: `tls_cert_validated = true`, `site_domain_name = {name of site}`
 
-Starting in the `terraform.tfvars` file, define and set values for all the local variables (called locals) you want to pass in. See prerequisites for questions about the domain name. [Here](https://developer.hashicorp.com/terraform/language/values/variables) is documentation on making locals. Terraform documentation is quite good.
+Starting in the `variables.tf` file, define and set values for all the local variables (called locals) you want to pass in. See prerequisites for questions about the domain name. [Here](https://developer.hashicorp.com/terraform/language/values/variables) is documentation on making locals. Terraform documentation is quite good.
 
 You will also need to create some other variables, called outputs, that take the output from the module and output it to the console if you want to see the S3 Bucket name and cloudfront distribution domain without needing to log into the AWS console (mostly applicable only if you don't have a domain that you're passing in). 
 
