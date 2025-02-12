@@ -13,7 +13,7 @@ Some parts of these instructions are left intentionally vague. This is because t
 - AmazonCertificateManagerFullAccess
 - CloudFrontFullAccess
 ```
-You will need to have previously signed in with this user on the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) in your local environment. After you have installed the CLI, begin this process with the `aws configure` command.
+You will need to have previously signed in with this user on the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) in your local environment. You will also need [Terraform](https://developer.hashicorp.com/terraform/install) installed. After you have installed the utilities, begin the setup process with the `aws configure` command.
 
 3. A domain name - not required, but if you do not have one you will have to access the site via the CloudFront domain, and the ACM certificate will not be used.
 
